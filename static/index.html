@@ -1,0 +1,49 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>PFS - PraiFah Smart</title>
+    <style>
+        body { font-family: Arial; padding: 20px; font-size: 24px; }
+        label, select, input, button { display: block; margin: 10px 0; font-size: 20px; }
+    </style>
+</head>
+<body>
+    <h1>📌 PFS - PraiFah Smart</h1>
+    <form id="uploadForm" enctype="multipart/form-data">
+        <label>บ้านเลขที่:
+            <select name="house_number">
+                <option value="">เลือกบ้านเลขที่</option>
+                <option value="39/50">39/50</option>
+                <option value="40/21">40/21</option>
+            </select>
+        </label>
+        <label>เดือน:
+            <select name="month">
+                <option value="">เลือกเดือน</option>
+                <option value="พ.ค. 68">พ.ค. 68</option>
+                <option value="มิ.ย. 68">มิ.ย. 68</option>
+            </select>
+        </label>
+        <label>ชื่อผู้โอน:
+            <input type="text" name="payer_name" required>
+        </label>
+        <label>สลิป:
+            <input type="file" name="slip" accept="image/*" required>
+        </label>
+        <button type="submit">📤 อัปโหลด</button>
+    </form>
+    <div id="response"></div>
+    <script>
+        document.getElementById("uploadForm").onsubmit = async (e) => {
+            e.preventDefault();
+            const form = e.target;
+            const data = new FormData(form);
+            const res = await fetch("/upload", { method: "POST", body: data });
+            const json = await res.json();
+            document.getElementById("response").innerText = json.message || "Error";
+        };
+    </script>
+</body>
+</html>

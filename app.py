@@ -1,8 +1,9 @@
+
 from fastapi import FastAPI, UploadFile, Form
-from fastapi.responses import JSONResponse, FileResponse
+from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from pathlib import Path
-import shutil
+import shutil, os
 
 app = FastAPI()
 
@@ -14,11 +15,16 @@ def read_root():
     return FileResponse("static/index.html")
 
 @app.post("/upload")
-async def upload_file(house_number: str = Form(...), month: str = Form(...), slip: UploadFile = Form(...)):
-    uploads_path = Path("uploads")
-    uploads_path.mkdir(exist_ok=True)
-    filename = f"{house_number.replace('/', '-')}_{month}.jpg"
-    save_path = uploads_path / filename
-    with open(save_path, "wb") as buffer:
-        shutil.copyfileobj(slip.file, buffer)
-    return JSONResponse({"message": "📌 อัปโหลดสำเร็จ!"})
+async def upload_file(house_number: str = Form(...), month: str = Form(...), payer_name: str = Form(...), slip: UploadFile = Form(...)):
+    if not house_number or not month or not payer_name or not slip:
+        return JSONResponse(status_code=400, content={"message": "กรุณากรอกข้อมูลให้ครบถ้วน"})
+
+    dir_path = Path("uploads") / house_number.replace("/", "-")
+    dir_path.mkdir(parents=True, exist_ok=True)
+    filename = f"{month.replace(' ', '_')}_{payer_name.replace(' ', '_')}.jpg"
+    file_path = dir_path / filename
+
+    with open(file_path, "wb") as f:
+        shutil.copyfileobj(slip.file, f)
+
+    return JSONResponse({"message": "✅ อัปโหลดสำเร็จ!"})
